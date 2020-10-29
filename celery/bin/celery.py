@@ -46,6 +46,8 @@ class App(ParamType):
     name = "application"
 
     def convert(self, value, param, ctx):
+        if "workdir" in ctx.params:
+            os.chdir(ctx.params["workdir"])
         try:
             return find_app(value)
         except ModuleNotFoundError as e:
