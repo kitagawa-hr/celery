@@ -6,7 +6,7 @@ from kombu import serialization
 from kombu.exceptions import OperationalError
 from kombu.utils.uuid import uuid
 
-from celery import current_app, group, states
+from celery import chain, current_app, group, states
 from celery._state import _task_stack
 from celery.canvas import signature
 from celery.exceptions import (Ignore, ImproperlyConfigured,
@@ -880,6 +880,11 @@ class Task:
                 link=self.request.callbacks,
                 link_error=self.request.errbacks,
             )
+        elif isinstance(sig, chain):
+            if not sig.tasks:
+                raise ImproperlyConfigured(
+                    "Cannot replace with an empty chain"
+                )
 
         if self.request.chain:
             # We need to freeze the new signature with the current task's ID to
